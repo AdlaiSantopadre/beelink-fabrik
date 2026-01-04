@@ -1,0 +1,96 @@
+Organizations:
+  - &OrdererOrgDCMS
+    Name: OrdererOrgDCMS
+    ID: OrdererOrgDCMS
+    MSPDir: /work/orgdcms/orderers/orderer0/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererOrgDCMS.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererOrgDCMS.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererOrgDCMS.admin')"
+
+  - &OrdererOrgX
+    Name: OrdererOrgX
+    ID: OrdererOrgX
+    MSPDir: /work/orgx/orderers/orderer0/msp
+    Policies:
+      Readers:
+        Type: Signature
+        Rule: "OR('OrdererOrgX.member')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererOrgX.member')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererOrgX.admin')"
+
+Capabilities:
+  Orderer: &OrdererCapabilities
+    V2_0: true
+
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+
+Orderer: &OrdererDefaults
+  OrdererType: etcdraft
+  Addresses:
+    - orderer0-orgdcms.orderer:7050
+    - orderer1-orgdcms.orderer:8050
+    - orderer0-orgx.orderer:9050
+
+  EtcdRaft:
+    Consenters:
+      - Host: orderer0-orgdcms.orderer
+        Port: 7050
+      - Host: orderer1-orgdcms.orderer
+        Port: 8050
+      - Host: orderer0-orgx.orderer
+        Port: 9050
+
+  Organizations:
+    - *OrdererOrgDCMS
+    - *OrdererOrgX
+
+  Policies:
+    Readers:
+      Type: ImplicitMeta
+      Rule: "ANY Readers"
+    Writers:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+    Admins:
+      Type: ImplicitMeta
+      Rule: "MAJORITY Admins"
+    BlockValidation:
+      Type: ImplicitMeta
+      Rule: "ANY Writers"
+
+
+
+  Capabilities: *OrdererCapabilities
+
+Profiles:
+  SystemGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+      <<: *OrdererDefaults
+    Consortiums:
+      SampleConsortium:
+        Organizations:
+          - *OrdererOrgDCMS
+          - *OrdererOrgX
+
